@@ -102,7 +102,9 @@ class SRTTA():
                 input_img = img_lr.clone()
                 input_img = input_img[:, [2,1,0]].cuda() / 255.
                 cls_pred = self.cls_model(input_img)
-                degradation_types = [classes[cls_pred.argmax(-1).item()]]
+                degradation_types = [classes[i] for i in range(1, len(classes)) if (cls_pred.sigmoid()>0.5)[0][i-1]]
+                if len(degradation_types) == 0:
+                    degradation_types = ['origin']
 
             corruptions=[]
             for dtype_ in degradation_types:
